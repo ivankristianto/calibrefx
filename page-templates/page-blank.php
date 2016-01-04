@@ -8,6 +8,12 @@ function blank_page_body_class( $classes ){
 	$classes[] = 'blank';
 	return $classes;
 }
+
+add_filter( 'calibrefx_edit_post_link', '__return_false');
+
+global $calibrefx;
+$calibrefx->hooks->remove( 'calibrefx_before_post_content', 'calibrefx_post_info' );
+
 ?>
 <!DOCTYPE html>
 <!--[if IE 7]>

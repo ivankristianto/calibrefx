@@ -1092,6 +1092,11 @@ del {
 	padding: 0;
 }
 
+.blank .entry-content,
+.blank .entry-summary{
+	margin: 0 0;
+}
+
 .post.has-post-thumbnail .entry-content{
 	margin-top: 0;
 }

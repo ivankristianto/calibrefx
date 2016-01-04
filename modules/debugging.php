@@ -76,47 +76,6 @@ if ( ! function_exists( 'die_dump' ) ) {
 }
 
 /**
- * debug_file function
- * Dump a variable into a file. Suitable for rececive Post back by thirdparty such as PayPal IPN.
- *
- */
-if ( ! function_exists( 'debug_file' ) ) {
-
-	function debug_file( $var = '', $filename = 'debug.txt', $path = CHILD_URI ) {
-
-		$output = '';
-
-		if ( is_array( $var ) ) {
-			$output = print_r( $var, true );
-		} elseif ( is_object( $var ) ) {
-			ob_start(); //Start buffering
-			var_dump( $var ); //print the result
-			$output = ob_get_contents(); //get the result from buffer
-			ob_end_clean(); //close buffer
-		} else {
-			ob_start(); //Start buffering
-			var_dump( $var ); //print the result
-			$output = ob_get_contents(); //get the result from buffer
-			ob_end_clean(); //close buffer
-		}
-
-		global $wp_filesystem;
-		$filepath = $path . '/' . $filename;
-		$creds = request_filesystem_credentials(site_url() . '/wp-admin/', '', false, false, array());
-		if ( ! WP_Filesystem($creds) ) {
-			/* any problems and we exit */
-			return false;
-		}	
-		$wp_filesystem->put_contents(
-			$filepath,
-			$output,
-			FOPEN_READ_WRITE_CREATE // predefined mode settings for WP files
-		);
-	}
-
-}
-
-/**
  * list_hooks function
  * get all hooks
  *
