@@ -1,20 +1,13 @@
 <?php
 /**
- * CalibreFx Framework
- *
- * WordPress Themes by CalibreFx Team
- *
- * @package		CalibreFx
- * @author		CalibreFx Team
- * @authorlink	http://www.calibrefx.com
- * @copyright	Copyright (c) 2012, Suntech Inti Perkasa.
- * @license		GNU/GPL v2
- * @link		http://www.calibrefx.com
- * @since		Version 1.0
- * @filesource 
- *
- * CalibreFx Index file
- *
- * @package CalibreFx
+ * Default template for author page
  */
+
+function calibrefx_show_author_info(){
+	if ( get_the_author_meta( 'calibrefx_author_box_archive', get_the_author_meta( 'ID' ) ) ) {
+		get_template_part( 'author-bio' );
+	}
+}
+add_action( 'calibrefx_after_loop', 'calibrefx_show_author_info', 20 );
+
 calibrefx();

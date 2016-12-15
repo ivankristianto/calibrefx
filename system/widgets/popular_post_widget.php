@@ -1,33 +1,29 @@
-<?php defined('CALIBREFX_URL') OR exit();
+<?php
+
 /**
- * CalibreFx Framework
- *
- * WordPress Themes Framework by CalibreFx Team
- *
- * @package     CalibreFx
- * @author      CalibreFx Team
- * @authorlink  http://www.calibrefx.com
- * @copyright   Copyright (c) 2012-2013, CalibreWorks. (http://www.calibreworks.com/)
- * @license     GNU GPL v2
- * @link        http://www.calibrefx.com
- * @filesource 
- *
- * WARNING: This file is part of the core CalibreFx framework. DO NOT edit
- * this file under any circumstances. 
- *
- * This define the framework constants
- *
- * @package CalibreFx
+ * Register the widget for use in Appearance -> Widgets
  */
- 
+function calibrefx_popular_post_init() {
+	register_widget( 'CFX_Popular_Post_Widget' );
+}
+add_action( 'widgets_init', 'calibrefx_popular_post_init' );
+
 class CFX_Popular_Post_Widget extends WP_Widget {
-	
+
 	protected $defaults;
-	
+
 	/**
 	 * Constructor
 	 */
 	function __construct() {
+		parent::__construct(
+			'popular-posts-widget',
+			apply_filters( 'calibrefx_widget_name', __( 'Popular Posts', 'calibrefx' ) ),
+			array(
+				'classname' => 'widget_popular_posts',
+				'description' => __( 'Display popular posts with thumbnail on your sidebar', 'calibrefx' )
+			)
+		);
 
 		$this->defaults = array(
 			'title'       	=> '',
@@ -38,15 +34,8 @@ class CFX_Popular_Post_Widget extends WP_Widget {
 			'detail_length' => 100
 		);
 
-		$widget_ops = array(
-			'classname'   => 'popular-posts-widget',
-			'description' => __( 'Display The Latest Posts', 'calibrefx' ),
-		);
-
-		$this->WP_Widget( 'popular-posts', __( 'Popular Posts Widget (Calibrefx)', 'calibrefx' ), $widget_ops );
-
 	}
-	
+
 	/**
 	 * Display widget content.
 	 *
@@ -58,31 +47,31 @@ class CFX_Popular_Post_Widget extends WP_Widget {
 
 		extract( $args );
 		$instance = wp_parse_args( (array) $instance, $this->defaults );
-		
+
 		echo $before_widget;
 
-		if ( ! empty( $instance['title'] ) )
-			echo $before_title . apply_filters( 'widget_title', $instance['title'], $instance, $this->id_base ) . $after_title;
-				
+		if ( ! empty( $instance['title'] ) ) {
+			echo $before_title . apply_filters( 'widget_title', $instance['title'], $instance, $this->id_base ) . $after_title; }
+
 		$query = new WP_Query(array(
 			'posts_per_page' => $instance['num_posts'],
 			'orderby' => 'comment_count',
 			'order' => 'DESC',
 			'ignore_sticky_posts' => true
-		));
+		) );
 
 		$no_post_thumbnail = apply_filters( 'no_thumbnail_image_url', CALIBREFX_IMAGES_URL.'/no-image.jpg' );
 
 		echo '<ul class="list-latest-posts">';
 
-		if($query->have_posts()) : 
-			while($query->have_posts()) : $query->the_post();
+		if ( $query->have_posts() ) :
+			while ( $query->have_posts() ) : $query->the_post();
 
-				$img = calibrefx_get_image(array('format' => 'html', 'size' => $instance['image_size']));
-				$img = (!empty($img) ? $img : '<img src="'.$no_post_thumbnail.'" />');
+				$img = calibrefx_get_image( array( 'format' => 'html', 'size' => $instance['image_size']) );
+				$img = ( ! empty( $img) ? $img : '<img src="'.$no_post_thumbnail.'" />' );
 				$date_format = get_option( 'date_format' );
 
-				if($instance['show_thumbnail']){
+				if ( $instance['show_thumbnail'] ) {
 					echo '
 						<li>
 							<div class="'.calibrefx_row_class().' latest-post-item">
@@ -91,40 +80,39 @@ class CFX_Popular_Post_Widget extends WP_Widget {
 								</div>
 								<div class="latest-post-detail col-lg-8 col-md-8 col-sm-8 col-xs-8">
 									<h5 class="latest-post-title"><a href="'.get_permalink().'">'.get_the_title().'</a></h5>
-									<p class="latest-post-info">'.do_shortcode('[post_date]').'</p>
-									'.(($instance['show_detail']) ? get_the_content_limit($instance['detail_length']) : '').'
+									<p class="latest-post-info">'.do_shortcode( '[post_date]' ).'</p>
+									'.(( $instance['show_detail']) ? get_the_content_limit( $instance['detail_length'] ) : '' ).'
 								</div>
 							</div>
 						</li>
 					';
-				}else{
+				}else {
 					echo '
 						<li>
 							<div class="'.calibrefx_row_class().' latest-post-item">
 								<div class="latest-post-detail col-lg-12 col-md-12 col-sm-12 col-xs-12">
 									<h5 class="latest-post-title"><a href="'.get_permalink().'">'.get_the_title().'</a></h5>
-									<p class="latest-post-date">'.date($date_format, get_the_time('U')).'</p>
-									'.(($instance['show_detail']) ? get_the_content_limit($instance['detail_length']) : '').'
+									<p class="latest-post-date">'.date( $date_format, get_the_time( 'U' ) ).'</p>
+									'.(( $instance['show_detail']) ? get_the_content_limit( $instance['detail_length'] ) : '' ).'
 								</div>
 							</div>
 						</li>
 					';
 				}
-				
 
 			endwhile;
-		else : 
-			echo '<li>'.__('There is no post available yet', 'calibrefx').'</li>';
+		else :
+			echo '<li>'.__( 'There is no post available yet', 'calibrefx' ).'</li>';
 		endif;
 
 		echo '</ul>';
 
 		echo $after_widget;
-		
+
 		wp_reset_query();
 		wp_reset_postdata();
 	}
-	 
+
 	 /**
 	  * Update a particular instance.
 	  */
@@ -134,7 +122,7 @@ class CFX_Popular_Post_Widget extends WP_Widget {
 		return $new_instance;
 
 	}
-	
+
 	/**
 	 * Display the settings update form.
 	 */
@@ -174,8 +162,8 @@ class CFX_Popular_Post_Widget extends WP_Widget {
 				<option value="thumbnail">thumbnail (<?php echo get_option( 'thumbnail_size_w' ); ?>x<?php echo get_option( 'thumbnail_size_h' ); ?>)</option>
 				<?php
 				$sizes = calibrefx_get_additional_image_sizes();
-				foreach ( (array) $sizes as $name => $size )
-					echo '<option value="' . $name . '" ' . selected( $name, $instance['image_size'], FALSE ) . '>' . $name . ' (' . $size['width'] . 'x' . $size['height'] . ')</option>';
+				foreach ( (array) $sizes as $name => $size ) {
+					echo '<option value="' . $name . '" ' . selected( $name, $instance['image_size'], false ) . '>' . $name . ' ( ' . $size['width'] . 'x' . $size['height'] . ' )</option>'; }
 				?>
 			</select>
 		</p>

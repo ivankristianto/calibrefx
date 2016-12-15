@@ -1,33 +1,29 @@
-<?php defined('CALIBREFX_URL') OR exit();
+<?php
+
 /**
- * CalibreFx Framework
- *
- * WordPress Themes Framework by CalibreFx Team
- *
- * @package     CalibreFx
- * @author      CalibreFx Team
- * @authorlink  http://www.calibrefx.com
- * @copyright   Copyright (c) 2012-2013, CalibreWorks. (http://www.calibreworks.com/)
- * @license     GNU GPL v2
- * @link        http://www.calibrefx.com
- * @filesource 
- *
- * WARNING: This file is part of the core CalibreFx framework. DO NOT edit
- * this file under any circumstances. 
- *
- * This define the framework constants
- *
- * @package CalibreFx
+ * Register the widget for use in Appearance -> Widgets
  */
- 
+function calibrefx_feature_post_init() {
+	register_widget( 'CFX_Feature_Post_Widget' );
+}
+add_action( 'widgets_init', 'calibrefx_feature_post_init' );
+
 class CFX_Feature_Post_Widget extends WP_Widget {
-	
+
 	protected $defaults;
-	
+
 	/**
 	 * Constructor
 	 */
 	function __construct() {
+		parent::__construct(
+			'feature-post-widget',
+			apply_filters( 'calibrefx_widget_name', __( 'Feature Posts', 'calibrefx' ) ),
+			array(
+				'classname' => 'widget_feature_post',
+				'description' => __( 'Display feature post with thumbnail on your sidebar', 'calibrefx' )
+			)
+		);
 
 		$this->defaults = array(
 			'title'       	  => '',
@@ -40,18 +36,10 @@ class CFX_Feature_Post_Widget extends WP_Widget {
 			'show_content'    => 0,
 			'show_date'       => 0,
 			'content_limit'   => '',
-			'more_text'   	  => '[More...]',
+			'more_text'   	  => 'Read more',
 		);
-
-		$widget_ops = array(
-			'classname'   => 'feature-post-widget',
-			'description' => __( 'Display feature post with thumbnail', 'calibrefx' ),
-		);
-
-		$this->WP_Widget( 'feature-post', __( 'Feature Post (CalibreFx)', 'calibrefx' ), $widget_ops );
-
 	}
-	
+
 	/**
 	 * Display widget content.
 	 *
@@ -61,47 +49,48 @@ class CFX_Feature_Post_Widget extends WP_Widget {
 	function widget( $args, $instance ) {
 		extract( $args );
 		$instance = wp_parse_args( (array) $instance, $this->defaults );
-		
-		//$featured_page = new WP_Query( array( 'page_id' => $instance['page_id'] ) );
+
 		$query_args = array(
-			'post_type' => 'post',
-			'cat'       => $instance['posts_cat'],
-			'showposts' => $instance['post_num'],
+			'post_type' 		=> 'post',
+			'cat'       		=> $instance['posts_cat'],
+			'posts_per_page'	=> $instance['post_num'],
 		);
 		$featured_posts = new WP_Query( $query_args );
 
-		remove_filter('post_class', 'calibrefx_post_class');
-		
+		remove_filter( 'post_class', 'calibrefx_post_class' );
+
 		echo $before_widget . '<div class="feature-post">';
 
-			if ( ! empty( $instance['title'] ) )
-				echo $before_title . apply_filters( 'widget_title', $instance['title'], $instance, $this->id_base ) . $after_title;
+		if ( ! empty( $instance['title'] ) ) {
+			echo $before_title . apply_filters( 'widget_title', $instance['title'], $instance, $this->id_base ) . $after_title; }
 
-			if ( $featured_posts->have_posts() ) : while ( $featured_posts->have_posts() ) : $featured_posts->the_post();
+		if ( $featured_posts->have_posts() ) : 
+			while ( $featured_posts->have_posts() ) : 
+				$featured_posts->the_post();
 				echo '<div class="' . implode( ' ', get_post_class() ) . '">';
-			
-				if ( ! empty( $instance['show_title'] ) )
-					printf( '<h4 class="entry-title"><a href="%s" title="%s">%s</a></h4>', get_permalink(), the_title_attribute( 'echo=0' ), get_the_title() );
-				
+
+				if ( ! empty( $instance['show_title'] ) ) {
+					printf( '<h4 class="entry-title"><a href="%s" title="%s">%s</a></h4>', get_permalink(), the_title_attribute( 'echo=0' ), get_the_title() ); }
+
 				//Show image
-				if ( ! empty( $instance['show_image'] ) )
+				if ( ! empty( $instance['show_image'] ) ) {
 					printf(
 						'<a href="%s" title="%s" class="%s">%s</a>',
 						get_permalink(),
 						the_title_attribute( 'echo=0' ),
 						esc_attr( $instance['image_alignment'] ),
 						calibrefx_get_image( array( 'format' => 'html', 'size' => $instance['image_size'], ) )
-					);
+					); }
 
 				if ( ! empty( $instance['show_content'] ) ) {
-					if ( empty( $instance['content_limit'] ) )
-						the_content( $instance['more_text'] );
-					else
-						the_content_limit( (int) $instance['content_limit'], esc_html( $instance['more_text'] ) );
+					if ( empty( $instance['content_limit'] ) ) {
+						the_content( $instance['more_text'] ); }
+					else {
+						the_content_limit( (int) $instance['content_limit'], esc_html( $instance['more_text'] ) ); }
 				}
 
 				if ( $instance['show_date'] ) {
-					echo do_shortcode('[post_date format="relative"]');
+					echo do_shortcode( '[post_date format="relative"]' );
 				}
 
 				echo '</div><!--end post_class()-->' . "\n\n";
@@ -109,10 +98,10 @@ class CFX_Feature_Post_Widget extends WP_Widget {
 				endwhile;
 			endif;
 		echo '</div>' . $after_widget;
-		
+
 		wp_reset_query();
 	}
-	 
+
 	 /**
 	  * Update a particular instance.
 	  */
@@ -123,7 +112,7 @@ class CFX_Feature_Post_Widget extends WP_Widget {
 		return $new_instance;
 
 	}
-	
+
 	/**
 	 * Display the settings update form.
 	 */
@@ -167,8 +156,8 @@ class CFX_Feature_Post_Widget extends WP_Widget {
 				<option value="thumbnail">thumbnail (<?php echo get_option( 'thumbnail_size_w' ); ?>x<?php echo get_option( 'thumbnail_size_h' ); ?>)</option>
 				<?php
 				$sizes = calibrefx_get_additional_image_sizes();
-				foreach ( (array) $sizes as $name => $size )
-					echo '<option value="' . $name . '" ' . selected( $name, $instance['image_size'], FALSE ) . '>' . $name . ' (' . $size['width'] . 'x' . $size['height'] . ')</option>';
+				foreach ( (array) $sizes as $name => $size ) {
+					echo '<option value="' . $name . '" ' . selected( $name, $instance['image_size'], false ) . '>' . $name . ' ( ' . $size['width'] . 'x' . $size['height'] . ' )</option>'; }
 				?>
 			</select>
 		</p>
